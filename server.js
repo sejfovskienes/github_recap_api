@@ -6,7 +6,14 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-  origin: 'https://agenta-github-wrapped.vercel.app', // no trailing slash
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (origin === 'https://agenta-github-wrapped.vercel.app') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -27,7 +34,7 @@ app.post('/api/github/token', async (req, res) => {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
         code,
-        redirect_uri: 'https://agenta-github-wrapped.vercel.app' // must match frontend
+        redirect_uri: 'https://agenta-github-wrapped.vercel.app' 
       }),
     });
 
